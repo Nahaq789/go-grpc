@@ -1,0 +1,15 @@
+syntax = "proto3"
+
+option go_package = "service/user_service"
+
+service UserService {
+        rpc CreateUser (CreateUserRequest) returns (CreateUserResponse)
+}
+
+message CreateUserRequest {
+        string name = 1
+}
+
+message CreateUserResponse {
+        string message = 1
+}
