@@ -15,3 +15,4 @@ message CreateUserRequest {
 message CreateUserResponse {
     string message = 1;
 }
+
