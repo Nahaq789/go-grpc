@@ -1,12 +1,10 @@
 package main
 
 import (
-	"fmt"
-	"io/ioutil"
 	"log"
 	"practice_service/pb"
 
-	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/encoding/protojson"
 )
 
 func main() {
@@ -29,25 +27,37 @@ func main() {
 		},
 	}
 
-	binData, err := proto.Marshal(employee)
-	if err != nil {
-		log.Fatalln("Can't serialize", err)
-	}
+	// binData, err := proto.Marshal(employee)
+	// if err != nil {
+	// 	log.Fatalln("Can't serialize", err)
+	// }
 
-	if err := ioutil.WriteFile("employee.bin", binData, 0666); err != nil {
-		log.Fatalln("Can't write file", err)
-	}
+	// if err := ioutil.WriteFile("employee.bin", binData, 0666); err != nil {
+	// 	log.Fatalln("Can't write file", err)
+	// }
 
-	in, err := ioutil.ReadFile("employee.bin")
+	// in, err := ioutil.ReadFile("employee.bin")
+	// if err != nil {
+	// 	log.Fatalln("Can't read file", err)
+	// }
+
+	// readEmployee := &pb.Employee{}
+	// err = proto.Unmarshal(in, readEmployee)
+	// if err != nil {
+	// 	log.Fatalln("Can't deserialize", err)
+	// }
+
+	// fmt.Println(readEmployee)
+
+	out, err := protojson.Marshal(employee)
 	if err != nil {
-		log.Fatalln("Can't read file", err)
+		log.Fatalln("Can't serialize to JSON", err)
 	}
+	// fmt.Printf("%s\n", out)
 
 	readEmployee := &pb.Employee{}
-	err = proto.Unmarshal(in, readEmployee)
-	if err != nil {
-		log.Fatalln("Can't deserialize", err)
+	if err := protojson.Unmarshal(out, readEmployee); err != nil {
+		log.Fatalln("Can't deserialize from JSON", err)
 	}
-
-	fmt.Println(readEmployee)
+	log.Printf("Employee: %s\n", readEmployee)
 }
