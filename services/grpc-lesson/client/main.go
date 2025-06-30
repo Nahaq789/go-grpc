@@ -22,7 +22,8 @@ func main() {
 	client := pb.NewFIleServiceClient(conn)
 	// callListFIles(client)
 	// callDownload(client)
-	callUpload(client)
+	// callUpload(client)
+	callUploadAndNotifyProgress(client)
 
 }
 
@@ -99,4 +100,65 @@ func callUpload(client pb.FIleServiceClient) {
 	}
 
 	log.Printf("Upload response: %v", res.GetSize())
+}
+
+func callUploadAndNotifyProgress(client pb.FIleServiceClient) {
+	fileName := "sports.txt"
+	path := "/home/naha/dev/github/go-grpc/services/grpc-lesson/storage/" + fileName
+	file, err := os.Open(path)
+	if err != nil {
+		log.Fatalf("could not open file: %v", err)
+	}
+	defer file.Close()
+
+	stream, err := client.UploadAndNotifyProgress(context.Background())
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	// request
+	buf := make([]byte, 5)
+	go func() {
+		for {
+			n, err := file.Read(buf)
+			if n == 0 || err == io.EOF {
+				break
+			}
+			if err != nil {
+				log.Fatalln(err)
+			}
+
+			req := pb.UploadAndNotifyProgressRequest{
+				Data: buf[:n],
+			}
+
+			sendErr := stream.Send(&req)
+			if sendErr != nil {
+				log.Fatalf("error while sending data: %v", sendErr)
+			}
+			time.Sleep(1 * time.Second)
+		}
+		err = stream.CloseSend()
+		if err != nil {
+			log.Fatalf("error while closing send stream: %v", err)
+		}
+	}()
+
+	// response
+	ch := make(chan struct{})
+	go func() {
+		for {
+			res, err := stream.Recv()
+			if err == io.EOF {
+				break
+			}
+			if err != nil {
+				log.Fatalln(err)
+			}
+
+			log.Printf("received message: %v", res.GetMessage())
+		}
+		close(ch)
+	}()
+	<-ch
 }
