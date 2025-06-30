@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package user_service;
 
-option go_package = "../services/user_service/proto";
+option go_package = "./proto";
 
 service UserService {
     rpc CreateUser (CreateUserRequest) returns (CreateUserResponse) {}
@@ -10,6 +10,7 @@ service UserService {
 
 message CreateUserRequest {
     string name = 1;
+    string email = 2;
 }
 
 message CreateUserResponse {
