@@ -1,11 +1,16 @@
 package controller
 
-import "github.com/gin-gonic/gin"
+import (
+	"context"
+	"user_service/proto"
+)
 
 type UserController struct {
+	proto.UnimplementedUserServiceServer
 }
 
-func (uc *UserController) CreateUser(c *gin.Context) {
+func (uc *UserController) CreateUser(ctx context.Context, req *proto.CreateUserRequest) (*proto.CreateUserResponse, error) {
 	// Logic to create a user
-	c.JSON(201, gin.H{"message": "User created"})
+
+	return nil, nil
 }
