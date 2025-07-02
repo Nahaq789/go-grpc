@@ -5,7 +5,7 @@ services:
     container_name: grpc_user
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: test_database
+      MYSQL_DATABASE: test_database_user
       MYSQL_USER: docker
       MYSQL_PASSWORD: docker
       TZ: "Asia/Tokyo"
@@ -15,13 +15,13 @@ services:
       - ./docker/userdb/my.cnf:/etc/mysql/conf.d/my.cnf
       - ./docker/userdb/sql:/docker-entrypoint-initdb.d
     ports:
-      - 3308:3308
+      - 3308:3306
   organizationdb:
     image: mysql:latest
     container_name: grpc_organization
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: test_database
+      MYSQL_DATABASE: test_database_organization
       MYSQL_USER: docker
       MYSQL_PASSWORD: docker
       TZ: "Asia/Tokyo"
@@ -31,4 +31,17 @@ services:
       - ./docker/organizationdb/my.cnf:/etc/mysql/conf.d/my.cnf
       - ./docker/organizationdb/sql:/docker-entrypoint-initdb.d
     ports:
-      - 3307:3307
+      - 3307:3306
+  phpmyadmin:
+    container_name: test_phpmyadmin
+    image: phpmyadmin/phpmyadmin
+    environment:
+      - PMA_ARBITRARY=1
+      - PMA_HOSTS=userdb,organizationdb
+      - PMA_USER=root
+      - PMA_PASSWORD=root
+    ports:
+      - 8000:80
+    depends_on:
+      - userdb
+      - organizationdb
