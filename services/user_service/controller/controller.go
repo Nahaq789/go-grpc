@@ -8,8 +8,14 @@ import (
 )
 
 type UserController struct {
-	r repository.UserRepository
+	r *repository.UserRepository
 	proto.UnimplementedUserServiceServer
+}
+
+func NewUserController(repo *repository.UserRepository) *UserController {
+	return &UserController{
+		r: repo,
+	}
 }
 
 func (uc *UserController) CreateUser(ctx context.Context, req *proto.CreateUserRequest) (*proto.CreateUserResponse, error) {

@@ -27,7 +27,8 @@ func main() {
 
 	db := initDB()
 	userRepo := repository.NewUserRepository(db)
-	userRepo.CreateUser(&model.User{Name: "John Doe", Email: "hoge.email.com"})
+
+	userController := controller.NewUserController(userRepo)
 
 	go func() {
 		listen, err := net.Listen("tcp", "localhost:50051")
@@ -35,7 +36,7 @@ func main() {
 			log.Fatalf("failed to listen: %v", err)
 		}
 		s := grpc.NewServer()
-		proto.RegisterUserServiceServer(s, &controller.UserController{})
+		proto.RegisterUserServiceServer(s, userController)
 
 		fmt.Println("Server is running on localhost:50051")
 		if err := s.Serve(listen); err != nil {
