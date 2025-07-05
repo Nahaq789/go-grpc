@@ -7,6 +7,7 @@ import (
 	"organization_service/model"
 	"organization_service/proto"
 	"organization_service/repository"
+	"organization_service/saga"
 
 	"github.com/gin-gonic/gin"
 	"google.golang.org/grpc"
@@ -33,10 +34,14 @@ func main() {
 		})
 	})
 
-	userServiceClient := initClient()
+	grpcClient := initClient()
+	userServiceClient := repository.NewUserServiceClient(grpcClient)
+
+	saga := saga.NewOrganizationSaga(userServiceClient)
 
 	c := controller.NewOrganizationController(
-		repository.NewOrganizationRepository(initDB(), userServiceClient),
+		repository.NewOrganizationRepository(initDB()),
+		saga,
 	)
 	router.POST("/organization", c.CreateOrganization)
 	fmt.Println("Organization service is running...")
