@@ -1,8 +1,11 @@
 package controller
 
 import (
+	"net/http"
 	"organization_service/model"
 	"organization_service/repository"
+
+	"github.com/gin-gonic/gin"
 )
 
 type OrganizationController struct {
@@ -13,10 +16,16 @@ func NewOrganizationController(r *repository.OrganizationRepository) *Organizati
 	return &OrganizationController{r: r}
 }
 
-func (c *OrganizationController) CreateOrganization(name string) error {
-	o := &model.Organization{Name: name}
-	if err := c.r.CreateOrganization(o); err != nil {
-		return err
+func (c *OrganizationController) CreateOrganization(ctx *gin.Context) {
+	var organization *OrganizationDTO
+	if err := ctx.ShouldBind(&organization); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
-	return nil
+
+	o := model.Organization{Name: organization.OrganizationName}
+	u := model.User{Name: organization.UserName, Email: organization.Email}
+	if err := c.r.CreateOrganization(o, u); err != nil {
+		return
+	}
 }
