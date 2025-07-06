@@ -37,12 +37,11 @@ func main() {
 	grpcClient := initClient()
 	userServiceClient := repository.NewUserServiceClient(grpcClient)
 
-	saga := saga.NewOrganizationSaga(userServiceClient)
+	repository := repository.NewOrganizationRepository(initDB())
 
-	c := controller.NewOrganizationController(
-		repository.NewOrganizationRepository(initDB()),
-		saga,
-	)
+	saga := saga.NewOrganizationSaga(repository, userServiceClient)
+
+	c := controller.NewOrganizationController(saga)
 	router.POST("/organization", c.CreateOrganization)
 	fmt.Println("Organization service is running...")
 
